@@ -1,0 +1,262 @@
+Use tools SI, IDA, UE
+OS:WinXP
+The first step is to crack the product serial number
+Enter in the online registration dialog box
+Product serial number(S):bingo
+Registered username(N):antispy
+ctrl-d calls out SI,
+Still setting breakpoints the same way
+bpx GetDlgItemTextA
+bpx GetDlgItemTextW
+bpx GetWindowTextA
+bpx GetWindowTextW
+F5 to exit SI
+After clicking the 'Register (R)' button, the breakpoint is triggered at GetWindowTextA, F12 StepOut.
+To view the return value of GetWindowTextA, please refer to 'GetWindowTextA Usage'.
+F10 StepOver found that GetWindowTextA was called a total of 12 times, because in the online registration dialog box
+There are 12 TextBoxes in total. If you follow the single-step trace again, you can see the following code snippet
+001B:00405650  MOV       EAX,FS:[00000000]
+001B:00405656  PUSH      FF
+001B:00405658  PUSH      00507968
+001B:0040565D  PUSH      EAX
+001B:0040565E  MOV       FS:[00000000],ESP
+001B:00405665  SUB       ESP,44
+001B:00405668  PUSH      EBP
+001B:00405669  PUSH      ESI
+001B:0040566A  PUSH      EDI
+001B:0040566B  MOV       ESI,ECX
+001B:0040566D  PUSH      01
+001B:0040566F  CALL     004DB612
+001B:00405674  TEST      EAX,EAX
+001B:00405676  JZ       00405C9A
+001B:0040567C  LEA       EDI,[ESI+00000094]
+001B:00405682  MOV       DWORD PTR [ESP+10],7FFFFFFF
+001B:0040568A  MOV       ECX,EDI
+001B:0040568C  CALL     004D3714
+001B:00405691  MOV       ECX,EDI
+001B:00405693  CALL     004D361D
+001B:00405698  MOV       EAX,[EDI]
+001B:0040569A  MOV       ECX,ESI
+001B:0040569C  PUSH      EAX
+001B:0040569D  PUSH      000005C8
+...
+001B:004056A2  CALL     004DC17A
+001B:004056A7  PUSH      00
+001B:004056A9  MOV       ECX,EDI
+001B:004056AB  CALL     004DCBDB
+001B:004056B0  PUSH      EAX                -Enter the product serial number bingo
+001B:004056B1  LEA       EAX,[ESP+14]       -0x7FFFFFFFh
+001B:004056B5  PUSH      EAX                -
+001B:004056B6  CALL     0040B9E0           -It may be the serial number verification function
+001B:004056BB  ADD       ESP,08
+001B:004056BE  TEST      AX,AX              -Validation results
+001B:004056C1  JNZ      00405774           -
+001B:004056C7  MOV       ECX,[00557258]
+001B:004056CD  MOV       [ESP+0C],ECX
+001B:004056D1  LEA       EDX,[ESP+14]
+001B:004056D5  PUSH      0000F057
+001B:004056DA  PUSH      EDX
+001B:004056DB  MOV       DWORD PTR [ESP+60],00000000
+001B:004056E3  CALL     0042E1B0
+001B:004056E8  ADD       ESP,08
+001B:004056EB  PUSH      EAX
+001B:004056EC  LEA       ECX,[ESP+10]
+001B:004056F0  MOV       BYTE PTR [ESP+5C],01
+
+Set breakpoint again
+bpx 0040B9E0
+Enter 0040B9E0①
+001B:0040B9E0  SUB       ESP,20
+001B:0040B9E3  OR        ECX,-01
+001B:0040B9E6  XOR       EAX,EAX
+001B:0040B9E8  PUSH      ESI
+001B:0040B9E9  MOV       ESI,[ESP+2C]
+001B:0040B9ED  PUSH      EDI
+001B:0040B9EE  MOV       EDI,ESI
+001B:0040B9F0  REPNZ SCASB
+001B:0040B9F2  NOT       ECX                -FFFFFFFAh
+001B:0040B9F4  DEC       ECX                -05h
+001B:0040B9F5  CMP       ECX,0E             -Use 5 and 14 to compare
+001B:0040B9F8  JNZ      0040BA68           -Not equal, jump to 0040BA68
+001B:0040B9FA  PUSH      ESI
+001B:0040B9FB  CALL     004C228E
+001B:0040BA00  PUSH      0E
+001B:0040BA02  LEA       EAX,[ESP+10]
+001B:0040BA06  PUSH      ESI
+001B:0040BA07  PUSH      EAX
+001B:0040BA08  CALL     004C2190
+001B:0040BA0D  LEA       ECX,[ESP+18]
+001B:0040BA11  PUSH      ECX
+001B:0040BA12  CALL     00408840
+001B:0040BA17  MOV       ESI,EAX
+001B:0040BA19  PUSH      ESI
+001B:0040BA1A  CALL     00408530
+001B:0040BA1F  LEA       EDX,[ESP+30]
+001B:0040BA23  MOV       EDI,EAX
+001B:0040BA25  PUSH      EDX
+001B:0040BA26  PUSH      ESI
+001B:0040BA27  MOV       BYTE PTR [ESP+38],00
+001B:0040BA2C  CALL     004086C0
+001B:0040BA31  LEA       EAX,[ESP+28]
+001B:0040BA35  PUSH      0E
+001B:0040BA37  LEA       ECX,[ESP+3C]
+001B:0040BA3B  PUSH      EAX
+001B:0040BA3C  PUSH      ECX
+001B:0040BA3D  CALL     004C2650
+001B:0040BA42  ADD       ESP,2C
+001B:0040BA45  TEST      EAX,EAX
+001B:0040BA47  JNZ      0040BA59
+001B:0040BA49  MOV       EDX,[ESP+2C]
+001B:0040BA4D  OR        AX,FFFF
+001B:0040BA51  MOV       [EDX],EDI
+001B:0040BA53  POP       EDI
+001B:0040BA54  POP       ESI
+001B:0040BA55  ADD       ESP,20
+001B:0040BA58  RET
+001B:0040BA59  MOV       EAX,[ESP+2C]
+001B:0040BA5D  MOV       [EAX],EDI
+001B:0040BA5F  POP       EDI
+001B:0040BA60  XOR       AX,AX
+001B:0040BA63  POP       ESI
+001B:0040BA64  ADD       ESP,20
+001B:0040BA67  RET
+001B:0040BA68  MOV       ECX,[ESP+2C]       -Incorrect length jump here
+001B:0040BA6C  POP       EDI
+001B:0040BA6D  XOR       AX,AX              -Return value cleared
+001B:0040BA70  POP       ESI
+001B:0040BA71  MOV       DWORD PTR [ECX],FFFFFFFF
+001B:0040BA77  ADD       ESP,20
+001B:0040BA7A  RET                          -return
+001B:0040BA7B  NOP
+
+From the CMP ECX,0E of 0040B9F5, we can see that the length of the serial number should be 14, so it needs to be changed
+A serial number for tracking
+This time change to a 14-digit serial number ABCDEFGHIJKLMN
+Enter 0040B9E0① again
+001B:0040B9E0  SUB       ESP,20
+001B:0040B9E3  OR        ECX,-01
+001B:0040B9E6  XOR       EAX,EAX
+001B:0040B9E8  PUSH      ESI
+001B:0040B9E9  MOV       ESI,[ESP+2C]
+001B:0040B9ED  PUSH      EDI
+001B:0040B9EE  MOV       EDI,ESI
+001B:0040B9F0  REPNZ SCASB
+001B:0040B9F2  NOT       ECX                -FFFFFFF0h
+001B:0040B9F4  DEC       ECX                -0Eh
+001B:0040B9F5  CMP       ECX,0E             -用14和14去比较
+001B:0040B9F8  JNZ      0040BA68            -Equal, no jump
+001B:0040B9FA  PUSH      ESI
+001B:0040B9FB  CALL     004C228E
+001B:0040BA00  PUSH      0E
+001B:0040BA02  LEA       EAX,[ESP+10]
+001B:0040BA06  PUSH      ESI
+001B:0040BA07  PUSH      EAX
+001B:0040BA08  CALL     004C2190
+001B:0040BA0D  LEA       ECX,[ESP+18]
+001B:0040BA11  PUSH      ECX
+001B:0040BA12  CALL     00408840
+001B:0040BA17  MOV       ESI,EAX
+001B:0040BA19  PUSH      ESI
+001B:0040BA1A  CALL     00408530
+001B:0040BA1F  LEA       EDX,[ESP+30]
+001B:0040BA23  MOV       EDI,EAX
+001B:0040BA25  PUSH      EDX
+001B:0040BA26  PUSH      ESI
+001B:0040BA27  MOV       BYTE PTR [ESP+38],00
+001B:0040BA2C  CALL     004086C0           --②What's going on here?
+:d esp+28
+0010:0012E914 41 42 43 44 45 46 47 48-49 4A 4B 4C 4D 4E 12 00  ABCDEFGHIJKLMN..
+0010:0012E924 41 42 43 44 45 46 47 45-46 36 41 5A 59 44 00 00  ABCDEFGEF6AZYD..
+0010:0012E934 BB 56 40 00 50 E9 12 00-70 E0 CF 00 3C EF 12 00  .V@.P...p...<...
+0010:0012E944 48 90 52 00 A8 E9 12 00-6D 05 91 7C FF FF FF 7F  H.R.....m..|...
+0010:0012E954 00 00 15 00 FC 84 41 7E-A4 85 41 7E 5C 03 02 00  ......A~..A~\...
+0010:0012E964 01 00 00 00 5C 03 02 00-EC 27 CF 00 00 00 00 00  ....\....'......
+0010:0012E974 A8 E9 12 00 55 B7 41 7E-85 B7 41 7E 5C 03 02 00  ....U.A~..A~\...
+0010:0012E984 EC 27 CF 00 00 00 00 00-10 FD 89 00 BC EA 12 00  .'..............
+001B:0040BA31  LEA       EAX,[ESP+28]       -生成了一个新的序号ABCDEFGEF6AZYD
+:d eax
+0010:0012E914 41 42 43 44 45 46 47 48-49 4A 4B 4C 4D 4E 12 00  ABCDEFGHIJKLMN..
+0010:0012E924 41 42 43 44 45 46 47 45-46 36 41 5A 59 44 00 00  ABCDEFGEF6AZYD..
+0010:0012E934 BB 56 40 00 50 E9 12 00-70 E0 CF 00 3C EF 12 00  .V@.P...p...<...
+0010:0012E944 48 90 52 00 A8 E9 12 00-6D 05 91 7C FF FF FF 7F  H.R.....m..|...
+0010:0012E954 00 00 15 00 FC 84 41 7E-A4 85 41 7E 5C 03 02 00  ......A~..A~\...
+0010:0012E964 01 00 00 00 5C 03 02 00-EC 27 CF 00 00 00 00 00  ....\....'......
+0010:0012E974 A8 E9 12 00 55 B7 41 7E-85 B7 41 7E 5C 03 02 00  ....U.A~..A~\...
+0010:0012E984 EC 27 CF 00 00 00 00 00-10 FD 89 00 BC EA 12 00  .'..............
+001B:0040BA35  PUSH      0E
+001B:0040BA37  LEA       ECX,[ESP+3C]
+001B:0040BA3B  PUSH      EAX                -ABCDEFGHIJKLMN
+001B:0040BA3C  PUSH      ECX                -ABCDEFGEF6AZYD
+001B:0040BA3D  CALL     004C2650           -比较两个序号
+001B:0040BA42  ADD       ESP,2C
+001B:0040BA45  TEST      EAX,EAX            -FFFFFFFFh
+:r eax
+Here you can modify the eax register to 0x00000000h, and you can see that AX is assigned the value FFFFh
+001B:0040BA47  JNZ      0040BA59           -If it is not 0, jump to 0040BA59
+001B:0040BA49  MOV       EDX,[ESP+2C]
+001B:0040BA4D  OR        AX,FFFF            -If correct, assign it to FFFF
+001B:0040BA51  MOV       [EDX],EDI
+001B:0040BA53  POP       EDI
+001B:0040BA54  POP       ESI
+001B:0040BA55  ADD       ESP,20
+001B:0040BA58  RET
+001B:0040BA59  MOV       EAX,[ESP+2C]       -Jump here
+001B:0040BA5D  MOV       [EAX],EDI
+001B:0040BA5F  POP       EDI
+001B:0040BA60  XOR       AX,AX              -Return value cleared
+001B:0040BA63  POP       ESI
+001B:0040BA64  ADD       ESP,20
+001B:0040BA67  RET                          -return
+001B:0040BA68  MOV       ECX,[ESP+2C]
+001B:0040BA6C  POP       EDI
+001B:0040BA6D  XOR       AX,AX
+001B:0040BA70  POP       ESI
+001B:0040BA71  MOV       DWORD PTR [ECX],FFFFFFFF
+001B:0040BA77  ADD       ESP,20
+001B:0040BA7A  RET
+001B:0040BA7B  NOP
+
+From the above debugging, we can find that ②004086C0 is a function used to generate the correct serial number. If you write a registration machine,
+You need to study the code inside carefully.
+It can be seen from the code of 0040BA4D OR AX, FFFF that if the serial number is correct, the return value should be
+is 0x0000FFFF.
+
+Next use the generated serial number ABCDEFGEF6AZYD to register again
+001B:004056A2  CALL     004DC17A
+001B:004056A7  PUSH      00
+001B:004056A9  MOV       ECX,EDI
+001B:004056AB  CALL     004DCBDB
+001B:004056B0  PUSH      EAX
+001B:004056B1  LEA       EAX,[ESP+14]
+001B:004056B5  PUSH      EAX
+001B:004056B6  CALL     0040B9E0           -Serial number judgment function
+001B:004056BB  ADD       ESP,08
+001B:004056BE  TEST      AX,AX              -0xFFFFh
+001B:004056C1  JNZ      00405774           -jump
+001B:004056C7  MOV       ECX,[00557258]
+001B:004056CD  MOV       [ESP+0C],ECX
+001B:004056D1  LEA       EDX,[ESP+14]
+001B:004056D5  PUSH      0000F057
+001B:004056DA  PUSH      EDX
+001B:004056DB  MOV       DWORD PTR [ESP+60],00000000
+001B:004056E3  CALL     0042E1B0
+001B:004056E8  ADD       ESP,08
+001B:004056EB  PUSH      EAX
+001B:004056EC  LEA       ECX,[ESP+10]
+001B:004056F0  MOV       BYTE PTR [ESP+5C],01
+
+Although I entered the "correct" serial number, the registration failure dialog box still pops up.
+"Your product serial number was not accepted. You may have entered it incorrectly. If you keep getting this error, please contact our support
+supportsic@globalscape.com”
+After tracing all the subsequent codes, the registration failure dialog box still pops up. There is only one possibility.
+The registration process is completed asynchronously, which means that after entering the correct serial number, CuteFTP uses another
+thread to complete online registration. Since I am registering online, what will happen if I disconnect from the Internet?
+Unplug the network cable and enter the serial number ABCDEFGEF6AZYD again. It is different from the last time. This time a dialog box pops up.
+"CuteFTP was unable to complete the registration process, however your product serial number appears to be correct.
+CuteFTP will attempt to complete the registration process the next time it loads. "
+Do not click "Manual Registration" at this time, click "Continue" to complete the registration process.
+
+Connect to the network and start CuteFTP again. I find that the entered serial number and user are not accepted by the server.
+Does that mean you have to unplug the network cable before each use?
+Now that we know that CuteFTP requires a user verification process every time it is started, let’s move on to the next step.
+Prevent CuteFTP from going to the server for verification when starting up.
